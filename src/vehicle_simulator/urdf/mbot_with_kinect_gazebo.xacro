@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<robot name="arm" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:include filename="$(find vehicle_simulator)/urdf/mbot_base_gazebo.xacro" />
+    <!--xacro:include filename="$(find vehicle_simulator)/urdf/kinect_gazebo.xacro" /-->
+    <xacro:include filename="$(find vehicle_simulator)/urdf/realsense2.urdf.xacro"/>
+  <xacro:include filename="$(find vehicle_simulator)/urdf/VLP-162.urdf.xacro"/>
+
+    <xacro:property name="kinect_offset_x" value="0.15" />
+    <xacro:property name="kinect_offset_y" value="0" />
+    <xacro:property name="kinect_offset_z" value="0.6" />
+
+    <!-- kinect -->
+    <!--joint name="kinect_joint" type="fixed">
+        <origin xyz="${kinect_offset_x} ${kinect_offset_y} ${kinect_offset_z}" rpy="0 0 0" />
+        <parent link="base_link"/>
+        <child link="kinect_link"/>
+    </joint-->
+
+ <xacro:arg name="realsense_enabled" default="true" />
+  <xacro:if value="$(arg realsense_enabled)">
+    <link name="realsense_mountpoint2"/>
+    <joint name="realsense_mountpoint_joint2" type="fixed">
+      <origin xyz="0 0 0.4" rpy="0 0 0" />  
+      <parent link="base_link"/>
+      <child link="realsense_mountpoint2" />
+    </joint>
+    <xacro:intel_realsense_mount prefix="realsense2" topic="realsense2" parent_link="realsense_mountpoint2"/>
+  </xacro:if>
+
+
+ <xacro:arg name="laser_enabled" default="true" />
+  <xacro:if value="$(arg laser_enabled)">
+    <VLP-162 parent="base_link" name="velodyne2" topic="/velodyne_points2" hz="10" samples="1801"  min_range="0.8" max_range="130.0" min_angle="-${M_PI}" max_angle="${M_PI}" >   
+      <origin xyz="0 0.0 0.1" rpy="0 0 0" />    
+    </VLP-162>
+  </xacro:if>
+
+    <!--xacro:kinect_camera prefix="kinect"/-->
+    <mbot_base_gazebo/>
+
+</robot>

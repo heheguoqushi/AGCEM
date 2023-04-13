@@ -1,7 +1,7 @@
 <launch>
 
   <arg name="stateEstimationTopic" default="/state_estimation"/>
-  <arg name="depthCloudTopic" default="/rgbd_camera/depth/points"/>
+  <arg name="depthCloudTopic" default="/realsense1/depth/color/points"/>
   <arg name="depthCloudDelay" default="0"/>
   <arg name="depthCamPitchOffset" default="0"/>
   <arg name="depthCamXOffset" default="0"/>
@@ -18,7 +18,7 @@
   <arg name="vehicleYaw" default="0"/>
   <arg name="use_gazebo" default="true"/>
   <arg name="gazebo_gui" default="true"/>
-  <arg name="world_name" default="office"/>
+  <arg name="world_name" default="dyn4"/>
   <arg name="config" default="indoor"/>
   <arg name="realtime_factor" default="1.0"/>
 
@@ -51,8 +51,12 @@
     <arg name="realtime_factor" value="$(arg realtime_factor)" />
   </include>
 
-  <node launch-prefix="nice" pkg="rviz" type="rviz" name="rvizAA" args="-d $(find vehicle_simulator)/rviz/vehicle_simulator_gazebo.rviz" respawn="true"/>
 
-  <node pkg="tf" type="static_transform_publisher" name="vehicleTransPublisher" args="0 0 0 -1.5707963 0 -1.5707963 /vehicle /rgbd_camera 1000"/>
+<node launch-prefix="nice" pkg="rviz" type="rviz" name="rvizAA" args="-d $(find vehicle_simulator)/rviz/vehicle_simulator_gazebo.rviz" respawn="true"/>
+  
+<node pkg="tf" type="static_transform_publisher" name="vehicleTransPublisher" args="0 0 0 -1.5707963 0 -1.5707963 /vehicle /rgbd_camera 1000"/>
+  <node pkg="tf" type="static_transform_publisher" name="vehicleTransPublisher1" args="0 0 0.4 -1.5707963 0 -1.5707963 /vehicle /realsense1_gazebo 1000"/>
+  <node pkg="tf" type="static_transform_publisher" name="vehicleTransPublisher2" args="0 0 0.1 0 0 0 /vehicle /velodyne 1000"/>
+    <!--node pkg="tf" type="static_transform_publisher" name="vehicleTransPublisher3" args="0 0 0.1 0 0 0   /mrobot/odom /velodyne2 1000"/-->
 
 </launch>

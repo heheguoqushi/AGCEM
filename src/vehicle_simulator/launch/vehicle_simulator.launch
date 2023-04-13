@@ -11,10 +11,10 @@
   <arg name="headless" default="false"/>
   <arg name="debug" default="false"/>
   <arg name="verbose" default="false"/>
-  <arg name="world_name" default="office"/>
+  <arg name="world_name" default="dyn4"/>
   <arg name="use_gazebo" default="true"/>
 
-  <group if="$(arg use_gazebo)">
+<group   if="$(arg use_gazebo)">
     <include file="$(find gazebo_ros)/launch/empty_world.launch" >
       <arg name="paused" value="$(arg paused)"/>
       <arg name="use_sim_time" value="$(arg use_sim_time)"/>
@@ -25,14 +25,46 @@
       <arg name="world_name" value="$(find vehicle_simulator)/world/$(arg world_name).world"/>
     </include>
 
+    <!--param name="realsense1_description" command="$(find xacro)/xacro  '$(find vehicle_simulator)/urdf/realsense1.urdf.xacro'" /-->
+    <!--node pkg="gazebo_ros" type="spawn_model" name="spawn_realsense1" args="-urdf -param /realsense1_description -model realsense1"/-->
+
     <param name="rgbd_camera_description" command="$(find xacro)/xacro --inorder '$(find vehicle_simulator)/urdf/rgbd_camera.urdf.xacro'" />
-    <node pkg="gazebo_ros" type="spawn_model" name="spawn_rgbd_camera" args="-urdf -param /rgbd_camera_description -model rgbd_camera"/>
+    <!--node pkg="gazebo_ros" type="spawn_model" name="spawn_rgbd_camera" args="-urdf -param /rgbd_camera_description -model rgbd_camera"/-->
     
     <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find vehicle_simulator)/urdf/robot.urdf.xacro'" />
-    <node pkg="gazebo_ros" type="spawn_model" name="spawn_robot" args="-urdf -param /robot_description -model robot"/>
+
+    <node pkg="gazebo_ros" type="spawn_model" name="spawn_robot" args="-urdf -param /robot_description -model robot -z 1.0"/>
+<!-- 运行robot_state_publisher节点，发布tf  -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"  output="screen" >
+        <param name="publish_frequency" type="double" value="50.0" />
+        <param name="tf_prefix" value="robot" />
+    </node>
+</group>
+
+<group ns="mrobot" >
+    
+  <!-- 加载机器人模型描述参数 -->
+     <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find vehicle_simulator)/urdf/mbot_with_kinect_gazebo.xacro' bodyframe:=mrobot ns:=mrobot  " /> 
+    <!-- 运行joint_state_publisher节点，发布机器人的关节状态  -->
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" ></node> 
+    <!-- 运行robot_state_publisher节点，发布tf  -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"  output="screen" >
+        <param name="publish_frequency" type="double" value="50.0" />
+        <param name="tf_prefix" value="mrobot" />
+    </node>
+    <!-- 在gazebo中加载机器人模型-->
+    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+          args="-urdf -model mrobot -param robot_description -x 30"/>
   </group>
 
-  <node pkg="vehicle_simulator" type="vehicleSimulator" name="vehicleSimulator" output="screen">
+
+
+
+
+
+
+
+ <node pkg="vehicle_simulator" type="vehicleSimulator" name="vehicleSimulator" output="screen">
     <param name="realtimeFactor" value="$(arg realtime_factor)" />
     <param name="windCoeff" type="double" value="0.05" />
     <param name="maxRollPitchRate" type="double" value="20.0" />
@@ -43,5 +75,6 @@
     <param name="vehicleZ" value="$(arg vehicleZ)" />
     <param name="vehicleYaw" value="$(arg vehicleYaw)" />
   </node>
+  
 
 </launch>

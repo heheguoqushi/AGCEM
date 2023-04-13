@@ -30,7 +30,7 @@ double windCoeff = 0.05;
 double maxRollPitchRate = 20.0;
 double rollPitchSmoothRate = 0.1;
 double sensorPitch = 0;
-
+//uav
 float vehicleX = 0;
 float vehicleY = 0;
 float vehicleZ = 1.0;
@@ -42,6 +42,7 @@ float vehicleVelXG = 0;
 float vehicleVelYG = 0;
 float vehicleVelZG = 0;
 
+
 float vehicleRoll = 0;
 float vehiclePitch = 0;
 float vehicleYaw = 0;
@@ -49,6 +50,23 @@ float vehicleYaw = 0;
 float vehicleRollCmd = 0;
 float vehiclePitchCmd = 0;
 float vehicleYawRate = 0;
+
+//ugv
+float mX = 0;
+float mY = 0;
+float mZ = 0;
+
+float mVelX = 0;
+float mVelY = 0;
+float mVelZ = 0;
+float mVelXG = 0;
+float mVelYG = 0;
+float mVelZG = 0;
+
+
+float mRoll = 0;
+float mPitch = 0;
+float mYaw = 0;
 
 void controlHandler(const geometry_msgs::TwistStamped::ConstPtr& controlIn)
 {
@@ -82,14 +100,21 @@ int main(int argc, char** argv)
   odomData.header.frame_id = "map";
   odomData.child_frame_id = "vehicle";
 
+
+tf::StampedTransform odomTrans2;
+  odomTrans2.frame_id_ = "map";
+  odomTrans2.child_frame_id_ = "mrobot/odom";
+  
   tf::TransformBroadcaster tfBroadcaster;
   tf::StampedTransform odomTrans;
   odomTrans.frame_id_ = "map";
   odomTrans.child_frame_id_ = "vehicle";
 
+  
+
   ros::Publisher pubModelState = nh.advertise<gazebo_msgs::ModelState> ("/gazebo/set_model_state", 5);
-  gazebo_msgs::ModelState cameraState;
-  cameraState.model_name = "rgbd_camera";
+  //gazebo_msgs::ModelState cameraState;
+ // cameraState.model_name = "realsense1";   //rgbd_camera
   gazebo_msgs::ModelState robotState;
   robotState.model_name = "robot";
 
@@ -144,7 +169,7 @@ int main(int argc, char** argv)
     ros::Time timeNow = ros::Time::now();
 
     geometry_msgs::Quaternion geoQuat = tf::createQuaternionMsgFromRollPitchYaw(vehicleRoll, vehiclePitch, vehicleYaw);
-
+    geometry_msgs::Quaternion mgeoQuat = tf::createQuaternionMsgFromRollPitchYaw(mRoll, mPitch, mYaw);
     // publish 200Hz odometry messages
     odomData.header.stamp = timeNow;
     odomData.pose.pose.orientation = geoQuat;
@@ -159,19 +184,29 @@ int main(int argc, char** argv)
     odomData.twist.twist.linear.z = vehicleVelZ;
     pubVehicleOdom.publish(odomData);
 
+
     odomTrans.stamp_ = timeNow;
-    odomTrans.setRotation(tf::Quaternion(geoQuat.x, geoQuat.y, geoQuat.z, geoQuat.w));
-    odomTrans.setOrigin(tf::Vector3(vehicleX, vehicleY, vehicleZ));
+    odomTrans.setRotation(tf::Quaternion(geoQuat.x,geoQuat.y, geoQuat.z, geoQuat.w));
+    odomTrans.setOrigin(tf::Vector3( vehicleX, vehicleY, vehicleZ));
     tfBroadcaster.sendTransform(odomTrans);
+
+
+
+    odomTrans2.stamp_ = timeNow;
+    odomTrans2.setRotation(tf::Quaternion(mgeoQuat.x, mgeoQuat.y, mgeoQuat.z, mgeoQuat.w));
+    odomTrans2.setOrigin(tf::Vector3(mX, mY, mZ));
+    tfBroadcaster.sendTransform(odomTrans2);
+
+
 
     geoQuat = tf::createQuaternionMsgFromRollPitchYaw(vehicleRoll, sensorPitch + vehiclePitch, vehicleYaw);
 
     // publish 200Hz Gazebo model state messages
-    cameraState.pose.orientation = geoQuat;
+    /*cameraState.pose.orientation = geoQuat;
     cameraState.pose.position.x = vehicleX;
     cameraState.pose.position.y = vehicleY;
     cameraState.pose.position.z = vehicleZ;
-    pubModelState.publish(cameraState);
+    pubModelState.publish(cameraState); */
     
     robotState.pose.orientation = geoQuat;
     robotState.pose.position.x = vehicleX;

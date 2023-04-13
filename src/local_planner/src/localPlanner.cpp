@@ -34,7 +34,7 @@ const double PI = 3.1415926;
 // general parameters
 string pathFolder;
 string stateEstimationTopic = "/state_estimation";
-string depthCloudTopic = "/rgbd_camera/depth/points";
+string depthCloudTopic = "/realsense1/depth/color/points";
 double depthCloudDelay = 0;
 double depthCamPitchOffset = 0;
 double depthCamXOffset = 0;

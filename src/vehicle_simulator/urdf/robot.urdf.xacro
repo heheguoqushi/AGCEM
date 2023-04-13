@@ -6,7 +6,31 @@
     </gazebo>
   </xacro:macro>
 
-  <link name="base_origin">
+<xacro:include filename="$(find vehicle_simulator)/urdf/realsense1.urdf.xacro"/>
+  <xacro:include filename="$(find vehicle_simulator)/urdf/VLP-161.urdf.xacro"/>
+
+ <xacro:arg name="realsense_enabled" default="true" />
+  <xacro:if value="$(arg realsense_enabled)">
+    <link name="realsense_mountpoint"/>
+    <joint name="realsense_mountpoint_joint" type="fixed">
+      <origin xyz="0 0 0.4" rpy="0 0 0" />  
+      <parent link="base_link"/>
+      <child link="realsense_mountpoint" />
+    </joint>
+    <xacro:intel_realsense_mount prefix="realsense1" topic="realsense1" parent_link="realsense_mountpoint"/>
+  </xacro:if>
+
+
+ <xacro:arg name="laser_enabled" default="true" />
+  <xacro:if value="$(arg laser_enabled)">
+    <VLP-16 parent="base_link" name="velodyne" topic="/velodyne_points" hz="10" samples="1801"  min_range="0.8" max_range="130.0" min_angle="-${M_PI}" max_angle="${M_PI}" >   
+      <origin xyz="0 0.0 0.1" rpy="0 0 0" />    
+    </VLP-16>
+  </xacro:if>
+
+
+
+  <link name="base_footprint">
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
     </visual>
@@ -29,7 +53,7 @@
 
   <joint name="base_link_joint" type="fixed">
     <origin xyz="0 0 0" rpy="0 0 0"/>
-    <parent link="base_origin"/>
+    <parent link="base_footprint"/>
     <child link="base_link"/>
   </joint>
 
