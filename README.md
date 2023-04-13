@@ -1,10 +1,7 @@
-cd AGCEM
-source devel/setup.sh
-roslaunch vehicle_simulator system_gazebo.launch
 
-
-
-
+```cd AGCEM```
+```source devel/setup.sh```
+```roslaunch vehicle_simulator system_gazebo.launch```
 
 The repository is meant for leveraging system development and robot deployment for autonomous aerial navigation. Integrating Gazebo and AirSim simulators and containing autonomous navigation modules such as collision avoidance, waypoint following, and manual flight, users can develop autonomous navigation systems and later on port those systems onto real flying robots for deployment.
 
